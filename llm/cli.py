@@ -77,6 +77,7 @@ from .utils import (
     extract_fenced_code_block,
     find_unused_key,
     has_plugin_prefix,
+    human_readable_size,
     instantiate_from_spec,
     make_schema_id,
     maybe_fenced_code,
@@ -1648,7 +1649,7 @@ def logs_status():
     if legacy_conversations or legacy_responses:
         click.echo(f"Number of legacy conversations:\t{legacy_conversations}")
         click.echo(f"Number of legacy responses:\t{legacy_responses}")
-    click.echo(f"Database file size: \t\t{_human_readable_size(path.stat().st_size)}")
+    click.echo(f"Database file size: \t\t{human_readable_size(path.stat().st_size)}")
 
 
 @logs.command(name="backup")
@@ -1662,7 +1663,7 @@ def backup(path):
         db.execute("vacuum into ?", [str(path)])
     except Exception as ex:  # noqa: BLE001
         raise click.ClickException(str(ex))
-    click.echo(f"Backed up {_human_readable_size(path.stat().st_size)} to {path}")
+    click.echo(f"Backed up {human_readable_size(path.stat().st_size)} to {path}")
 
 
 @logs.command(name="on")
@@ -4086,20 +4087,6 @@ def render_errors(errors):
 load_plugins()
 
 pm.hook.register_commands(cli=cli)
-
-
-def _human_readable_size(size_bytes):
-    if size_bytes == 0:
-        return "0B"
-
-    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = 0
-
-    while size_bytes >= 1024 and i < len(size_name) - 1:
-        size_bytes /= 1024.0
-        i += 1
-
-    return f"{size_bytes:.2f}{size_name[i]}"
 
 
 def logs_on():
