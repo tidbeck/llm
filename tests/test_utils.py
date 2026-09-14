@@ -9,6 +9,7 @@ import llm.utils
 from llm import Toolbox, get_key
 from llm.utils import (
     extract_fenced_code_block,
+    human_readable_size,
     instantiate_from_spec,
     maybe_fenced_code,
     monotonic_ulid,
@@ -373,6 +374,31 @@ def test_truncate_string(text, max_length, normalize_whitespace, keep_end, expec
         keep_end=keep_end,
     )
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "size_bytes, expected",
+    [
+        (0, "0B"),
+        (1, "1.00B"),
+        (1023, "1023.00B"),
+        (1024, "1.00KB"),
+        (1536, "1.50KB"),
+        (1024**2, "1.00MB"),
+        (1024**3, "1.00GB"),
+        (1024**4, "1.00TB"),
+        (1024**8, "1.00YB"),
+        # Beyond the largest unit we stay in YB rather than overflowing
+        (1024**9, "1024.00YB"),
+        # Negative sizes keep their sign
+        (-1024, "-1.00KB"),
+        # Floats are accepted too
+        (1024.0, "1.00KB"),
+    ],
+)
+def test_human_readable_size(size_bytes, expected):
+    """Test formatting byte counts as human readable strings."""
+    assert human_readable_size(size_bytes) == expected
 
 
 @pytest.mark.parametrize(

@@ -178,6 +178,27 @@ def token_usage_string(input_tokens, output_tokens, token_details) -> str:
     return ", ".join(bits)
 
 
+def human_readable_size(size_bytes: float) -> str:
+    """Format a number of bytes as a human readable string, e.g. ``1.50KB``.
+
+    Uses 1024 as the base and steps up through B, KB, MB, ... YB. Negative
+    values keep their sign, e.g. ``-1.00KB``.
+    """
+    if size_bytes == 0:
+        return "0B"
+
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    sign = "-" if size_bytes < 0 else ""
+    size_bytes = abs(size_bytes)
+    i = 0
+
+    while size_bytes >= 1024 and i < len(size_name) - 1:
+        size_bytes /= 1024.0
+        i += 1
+
+    return f"{sign}{size_bytes:.2f}{size_name[i]}"
+
+
 def extract_fenced_code_block(text: str, last: bool = False) -> str | None:
     """
     Extracts and returns Markdown fenced code block found in the given text.
