@@ -21,6 +21,13 @@ MIME_TYPE_FIXES = {
 
 
 class Fragment(str):
+    """
+    A string that remembers where it came from.
+
+    ``source`` holds the origin of the text: a URL, a resolved file path, ``"-"``
+    for standard input, or an empty string if unknown.
+    """
+
     def __new__(cls, content, *args, **kwargs):
         # For immutable classes like str, __new__ creates the string object
         return super().__new__(cls, content)
